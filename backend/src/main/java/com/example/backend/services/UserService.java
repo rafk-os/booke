@@ -1,0 +1,16 @@
+package com.example.backend.services;
+
+import com.example.backend.model.Book;
+import com.example.backend.model.User;
+import java.util.List;
+import java.util.Set;
+
+public interface UserService {
+    User addNewUser(User user);
+    List<User> findAll();
+    User findOne(int id);
+    User findOne(String username);
+    User edit(int id, User data);
+    void delete(int id);
+    Set<Book> findAllFromCart(Integer id);
+}
