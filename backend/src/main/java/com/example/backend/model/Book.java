@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
@@ -38,6 +40,11 @@ public class Book {
     @Schema(example= "Book about magic", description = "Description of book")
     @Column(name = "description")
     private String description;
+
+    @NotNull(message = "Please provide a price")
+    @Schema(example= "15.00", description = "Price of book")
+    @Column(name = "price")
+    private Float price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

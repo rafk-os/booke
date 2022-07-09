@@ -7,5 +7,5 @@ INSERT INTO USER_ROLES (USER_ID, ROLE_ID) VALUES(2, 2 );
 INSERT INTO USER_ROLES (USER_ID, ROLE_ID) VALUES( 1, 1 );
 INSERT INTO CART (id, user_id) VALUES (1,1);
 INSERT INTO CART (id, user_id) VALUES (2,2);
-INSERT INTO book (id, author , description, title, user_id) VALUES (1,'Jacek Sanowicz','Książka o superbohaterze', 'Superchild',1);
-INSERT INTO book (id, author,  description, title, user_id) VALUES (2,'Krzysztof Borowicz','Książka o czarodzieju', 'Czarnoksiężnk',1);
+INSERT INTO book (id, author , description,price, title, user_id) VALUES (1,'Jacek Sanowicz','Książka o superbohaterze', 15.00, 'Superchild',1);
+INSERT INTO book (id, author,  description,price, title, user_id) VALUES (2,'Krzysztof Borowicz','Książka o czarodzieju',25.00 , 'Czarnoksiężnk',1);

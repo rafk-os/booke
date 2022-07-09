@@ -157,4 +157,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
         return cart.getBooks();
     }
+
+    @Override
+    public Set<Role> getUserRoles(Integer id) {
+        User user;
+        try {
+            user = userRepository.findById(id).orElseThrow();
+        }
+        catch (Exception e){
+            throw new ResourceNotFoundException("No user of id " + id + " found.");
+        }
+        return user.getRoles();
+    }
 }

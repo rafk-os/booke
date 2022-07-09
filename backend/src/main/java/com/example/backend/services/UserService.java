@@ -1,6 +1,7 @@
 package com.example.backend.services;
 
 import com.example.backend.model.Book;
+import com.example.backend.model.Role;
 import com.example.backend.model.User;
 import java.util.List;
 import java.util.Set;
@@ -13,4 +14,5 @@ public interface UserService {
     User edit(int id, User data);
     void delete(int id);
     Set<Book> findAllFromCart(Integer id);
+    Set<Role> getUserRoles(Integer id);
 }

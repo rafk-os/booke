@@ -19,7 +19,7 @@ import java.util.List;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/")
 public class BookController {
-    private BookService bookService;
+    private final BookService bookService;
 
     public BookController(BookService bookService) {
         this.bookService = bookService;
@@ -92,12 +92,12 @@ public class BookController {
     @Operation(
             operationId = "addBookToCart",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "A book was added", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Cart.class))),
+                    @ApiResponse(responseCode = "200", description = "A book was added"),
                     @ApiResponse(responseCode = "401", description = "User not authenticated."),
                     @ApiResponse(responseCode = "404", description = "Book or cart not found.")
             }
     )
-    @PostMapping( value = "/books/{id}/cart", produces = { "application/json" } , consumes = { "application/json" })
+    @PostMapping( value = "/books/{id}/cart", produces = { "application/json" } )
     public ResponseEntity<Cart> addBookToCart(@PathVariable("id") Integer id) {
         Cart result = bookService.addToCart(id);
 

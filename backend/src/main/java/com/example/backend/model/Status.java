@@ -8,5 +8,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Status {
-    OPEN, CLOSED, DELIVERING, CANCELED,PREPARING;
+    OPEN, CLOSED, DELIVERING, CANCELED,PREPARING
 }

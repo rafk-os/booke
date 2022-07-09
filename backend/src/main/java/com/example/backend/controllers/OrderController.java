@@ -3,7 +3,12 @@ package com.example.backend.controllers;
 
 import com.example.backend.model.Orders;
 import com.example.backend.services.OrderService;
+import com.example.backend.utils.ChargeRequest;
+import com.example.backend.utils.ChargeResponse;
 import com.example.backend.utils.StatusForm;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -70,5 +77,33 @@ public class OrderController {
         return ResponseEntity.ok().body(order);
     }
 
+    @Operation(
+            operationId = "createOrder",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "A Order was created"),
+                    @ApiResponse(responseCode = "401", description = "User not authenticated."),
+            }
+    )
+    @GetMapping(value = "/orders", produces = { "application/json" })
+    public ResponseEntity<List<Orders>> getOrders() {
+        List<Orders> result = orderService.getAll();
+
+        return ResponseEntity.ok().body(result);
+    }
+
+    @Operation(
+            operationId = "chargeOrder",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "A Charge of order was created"),
+                    @ApiResponse(responseCode = "401", description = "User not authenticated."),
+            }
+    )
+    @PostMapping( value = "/orders/{id}/charge", produces = { "application/json" })
+    public ResponseEntity<ChargeResponse> chargeOrder(HttpServletRequest request, @PathVariable("id") Integer id )
+            throws StripeException {
+        Charge charge = orderService.charge(new ChargeRequest(id, ChargeRequest.Currency.PLN,request.getHeader("token")));
+        ChargeResponse response = new ChargeResponse(charge.getId(),charge.getStatus(),charge.getBalanceTransaction());
+        return ResponseEntity.ok().body(response);
+    }
 
 }
