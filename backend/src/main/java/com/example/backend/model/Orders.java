@@ -52,7 +52,7 @@ public class Orders {
     @ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, fetch = FetchType.EAGER)
     @JoinTable(
             name = "books_in_order",
-            joinColumns = @JoinColumn(name = "cart_id"),
+            joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "book_id"))
     private Set<Book> books;
 

@@ -5,16 +5,33 @@ import com.example.backend.model.Orders;
 import com.example.backend.model.Status;
 import com.example.backend.repository.OrderRepository;
 import com.example.backend.repository.UserRepository;
+import com.example.backend.utils.ChargeRequest;
+import com.stripe.Stripe;
+import com.stripe.exception.CardException;
+import com.stripe.exception.InvalidRequestException;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.NoSuchElementException;
+import javax.annotation.PostConstruct;
+import java.util.*;
 
 @Service("orderService")
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+
+    @Value("${STRIPE_SECRET_KEY}")
+    private String secretKey;
+    private int amount;
+
+    @PostConstruct
+    public void init() {
+        Stripe.apiKey = secretKey;
+    }
 
     public OrderServiceImpl(OrderRepository orderRepository, UserRepository userRepository) {
         this.orderRepository = orderRepository;
@@ -32,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
             order.setStatus(Status.OPEN);
             order.setBooks(new HashSet<>());
             order.getBooks().addAll(order.getUser().getCart().getBooks());
+            order.getUser().getCart().getBooks().clear();
         }
         catch (NoSuchElementException e){
             throw new ResourceNotFoundException( "Please login again. ");
@@ -73,5 +91,35 @@ public class OrderServiceImpl implements OrderService {
             throw new ResourceNotFoundException( "No status of name " + status + " found.");
         }
         return newStatus;
+    }
+
+    public Charge charge(ChargeRequest chargeRequest)
+            throws AuthenticationException, StripeException {
+        Orders order;
+        try {
+        order = orderRepository.findById(chargeRequest.getId()).orElseThrow();
+        }
+        catch (NoSuchElementException e) {
+            throw new ResourceNotFoundException( "No order of id " + chargeRequest.getId() + " found.");
+        }
+        Map<String, Object> chargeParams = new HashMap<>();
+        amount = 0;
+         order.getBooks().forEach((book) -> {
+             this.amount+=book.getPrice();
+         });
+
+        chargeParams.put("amount", (int)(amount * 100));
+        chargeParams.put("currency", chargeRequest.getCurrency());
+        chargeParams.put("description", order.getDescription());
+        chargeParams.put("source", chargeRequest.getToken());
+        Charge charge = Charge.create(chargeParams);
+        order.setStatus(Status.PREPARING);
+        orderRepository.save(order);
+        return charge;
+    }
+
+    @Override
+    public List<Orders> getAll() {
+        return orderRepository.findAll();
     }
 }

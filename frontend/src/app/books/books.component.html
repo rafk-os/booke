@@ -1,0 +1,206 @@
+
+<app-alert></app-alert>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <div class="career-search mb-60">
+
+        <form action="#" class="career-form mb-60 ">
+          <div class="row mt-2">
+            <div class="col-md-6 col-lg-3 my-3">
+              <div class="input-group position-relative">
+                <input type="text" class="form-control" placeholder="Enter Your Keywords" id="keywords">
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-3">
+              <div class="select-container">
+                <select class="custom-select">
+                  <option selected="">Author</option>
+                  <option value="1">J.K Rowling</option>
+                  <option value="2">Andrzej Sapkowski</option>
+                  <option value="3">Steven Martin</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-3">
+              <div class="select-container">
+                <select class="custom-select">
+                  <option selected="">Select Book Type</option>
+                  <option value="1">Fantasy</option>
+                  <option value="2">Criminal</option>
+                  <option value="3">Novel</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 my-3" >
+              <button type="button" class="btn btn-lg btn-block btn-light btn-custom" id="contact-submit">
+                Search
+              </button>
+              <button type="button" class="btn btn-lg btn-block btn-light btn-custom" style="margin-left: 15px" id="cart-submit" (click)="open_cart(content_cart)">
+                My Cart
+              </button>
+
+            </div>
+          </div>
+        </form>
+
+        <div class="filter-result ">
+          <div class="d-flex justify-content-between m-4">
+            <p class="mb-30 ff-montserrat mt-2" >Total number of books on sale : {{books.length}}</p>
+            <div>
+              <button type="button" class="btn btn-lg btn-block btn-light btn-custom add-book-button" (click)="goToOrders()"  style="margin-right: 35px"   id="orders" *ngIf="isAdmin == true"  >
+                Orders
+              </button>
+
+              <button type="button" class="btn btn-lg btn-block btn-light btn-custom add-book-button" (click)="open(content)"  style="margin-right: 35px"   id="add-book-submit" *ngIf="isAdmin == true"  >
+                Add new book
+              </button>
+
+            </div>
+
+
+          </div>
+
+          <div *ngFor="let book of books" class="job-box d-md-flex align-items-center justify-content-between mb-30">
+            <div class="job-left my-4 d-md-flex align-items-center flex-wrap">
+            <div style="margin-right: 45px"> {{book.author}}</div>
+              <div class="job-content">
+                <h5 class="text-center text-md-left">{{book.title}}</h5>
+                <p>{{book.description}}</p>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between " style="margin-left: 150px">
+              <h5 class="text-center text-md-left">Price: {{book.price}} PLN</h5>
+            </div>
+            <div class="job-right my-4 flex-shrink-0">
+              <button  class="btn d-block w-100 d-sm-inline-block  " (click)="addBookToCart(book.id)" [ngClass]="{ 'btn-success' : book.addedToCart, 'btn-light' :!book.addedToCart }" [disabled]="book.addedToCart" >{{ book.addedToCart == true ? 'Added to Cart' : 'Add to cart' }} </button>
+              <button  class="btn d-block w-100 d-sm-inline-block btn-light mt-3" *ngIf="isAdmin == true" (click)="deleteBook(book.id)" >Delete book</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Add book</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="newBookForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <div class=" form-floating  mb-4">
+        <input id="title" class="form-control" formControlName = "title" [ngClass]="{ 'is-invalid': submitted && f['title'].errors }" placeholder="Harry Potter">
+          <label for="title" class="m-1">Title</label>
+        <div *ngIf="submitted && f['title'].errors" class="invalid-feedback">
+          <div *ngIf="f['title'].errors['required']">Title is required</div>
+        </div>
+        </div>
+
+        <div class=" form-floating  mb-4">
+        <input id="author" class="form-control" formControlName = "author" [ngClass]="{ 'is-invalid': submitted && f['author'].errors }" placeholder="JK ROWLING">
+          <label for="author" class="m-1">Author</label>
+        <div *ngIf="submitted && f['author'].errors" class="invalid-feedback">
+          <div *ngIf="f['author'].errors['required']">Author is required</div>
+        </div>
+        </div>
+
+        <div class=" form-floating  mb-4">
+        <input id="description" class="form-control" formControlName = "description" [ngClass]="{ 'is-invalid': submitted && f['description'].errors }" placeholder="Historia o czarodziejach">
+          <label for="description" class="m-1">Description</label>
+        <div *ngIf="submitted && f['description'].errors" class="invalid-feedback">
+          <div *ngIf="f['description'].errors['required']">Description is required</div>
+        </div>
+        </div>
+
+        <div class=" form-floating  mb-4">
+          <input id="price" class="form-control" formControlName = "price" [ngClass]="{ 'is-invalid': submitted && f['price'].errors }" placeholder="50.99">
+          <label for="price" class="m-1">Price</label>
+          <div *ngIf="submitted && f['price'].errors" class="invalid-feedback">
+            <div *ngIf="f['price'].errors['required']">Price is required</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-outline-dark" (click)=" modal.close()">Add</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+
+<ng-template #content_cart let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title-cart">Shopping Cart</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered m-0">
+              <thead>
+              <tr>
+                <!-- Set columns width -->
+                <th class="text-center py-3 px-4" style="min-width: 400px;">Product Name &amp; Details</th>
+                <th class="text-right py-3 px-4" style="width: 100px;">Price</th>
+                <th class="text-center align-middle py-3 px-0" style="width: 40px;"><a href="#" class="shop-tooltip float-none text-light" title="" data-original-title="Clear cart"><i class="ino ion-md-trash"></i></a></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let book of bookInCart" >
+                <td class="p-4">
+                  <div class="media align-items-center">
+                    <div class="media-body">
+                      <a href="#" class="d-block text-dark">{{book.title}}</a>
+                      <small>
+                        <span class="text-muted">Author: {{book.author}}</span>
+                      </small>
+                    </div>
+                    <div class="media-body">
+                      <small>
+                        <span class="text-muted"> {{book.description}}</span>
+                      </small>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-right font-weight-semibold align-middle p-4">{{book.price}} PLN</td>
+                <td class="text-center align-middle px-0"><bi name="trash" class="big" (click)="deleteBookFromCart(book.id)" ></bi></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- / Shopping cart table -->
+
+          <div class="d-flex flex-wrap justify-content-between align-items-center pb-4">
+            <div class="mt-4">
+              <label class="text-muted font-weight-normal ">Promocode</label>
+              <input type="text" placeholder="ABC" class="form-control mt-1">
+            </div>
+            <div class="d-flex">
+              <div class="text-right mt-4">
+                <label class="text-muted font-weight-normal m-0">Total price</label>
+                <div class="text-large"><strong>{{sum}} PLN</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between" >
+            <button type="button" class="btn btn-lg btn-default md-btn-flat mt-2 mr-3" (click)="modal.dismiss('Cross click')">Back to shopping</button>
+            <button type="button" class="btn btn-lg btn-primary mt-2" (click)="goToAddOrders()" >Order</button>
+          </div>
+
+        </div>
+      </div>
+
+
+
+
+
+</ng-template>
+
+

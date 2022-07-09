@@ -1,10 +1,11 @@
 package com.example.backend.controllers;
+import com.example.backend.model.Role;
+import com.example.backend.utils.UserWithToken;
 import com.example.backend.model.Book;
 import com.example.backend.utils.LoginForm;
 import com.example.backend.configuration.TokenProvider;
 import com.example.backend.model.User;
 import com.example.backend.services.UserService;
-import com.example.backend.utils.AuthToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,13 +46,13 @@ public class UserController  {
     @Operation(
             operationId = "loginUser",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "User successfully logged in.", content = @Content(mediaType = "application/json", schema = @Schema(implementation =  AuthToken.class))),
+                    @ApiResponse(responseCode = "200", description = "User successfully logged in.", content = @Content(mediaType = "application/json", schema = @Schema(implementation =  UserWithToken.class))),
                     @ApiResponse(responseCode = "400", description = "Bad request body."),
                     @ApiResponse(responseCode = "401", description = "Bad credentials.")
             }
     )
     @PostMapping(value = "/users/login", produces = { "application/json" }, consumes = { "application/json" })
-    public ResponseEntity<AuthToken> loginUser(@Valid @RequestBody LoginForm loginForm) throws AuthenticationException {
+    public ResponseEntity<UserWithToken> loginUser(@Valid @RequestBody LoginForm loginForm) throws AuthenticationException {
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginForm.getUsername(),
@@ -59,7 +60,8 @@ public class UserController  {
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return ResponseEntity.ok(new AuthToken((jwtTokenUtil.generateToken(authentication))));
+        User user = userService.findOne(loginForm.getUsername());
+        return ResponseEntity.ok(new UserWithToken(user.getId(),user.getUsername(),"<hidden>",user.getFirstName(), user.getLastName(), user.getEmail(),(jwtTokenUtil.generateToken(authentication))));
     }
 
 
@@ -142,6 +144,21 @@ public class UserController  {
         Set<Book> result = userService.findAllFromCart(id);
 
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(
+            operationId = "getUserRoles",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "A role of user object of a given id.", content = @Content(mediaType = "application/json")),
+                    @ApiResponse(responseCode = "401", description = "User not authenticated."),
+                    @ApiResponse(responseCode = "404", description = "User not found.")
+            }
+    )
+    @GetMapping(value = "/users/{id}/role", produces = { "application/json" })
+    public ResponseEntity<Set<Role>> getUserRoles(@PathVariable("id") Integer id) {
+        Set<Role> roles = userService.getUserRoles(id);
+
+        return  ResponseEntity.ok(roles);
     }
 
 
